@@ -20,4 +20,18 @@ struct figure
     sf::Sprite sprite;
     std::vector<sf::CircleShape> moves;
 
+    void SetX(short NewX)
+    {
+        x = NewX;
+    }
+    
+    void SetY(short NewY)
+    {
+        y = NewY;
+    }
+
+    void SetSpritePost(sf::Vector2f NewPos)
+    {
+        sprite.setPosition(NewPos);
+    }
 };
