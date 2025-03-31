@@ -35,24 +35,29 @@ void SetBoard(char board[8][8], std::vector<figure>& figures, std::map<char, sf:
     }
 }
 
-void HelpMoveRBQ(figure &inp, char board[8][8], char cells[], int cellsX[], int cellsY[], int j, bool toremove[], bool IsBlack, sf::CircleShape circle, char EnemyKing)
+void HelpMoveRBQ(figure &inp, char board[8][8], char cells[], int cellsX[], int cellsY[], int j, bool toremove[], bool IsBlack, move temp, char EnemyKing, bool Check)
 {
     if(cellsX[j] < 0 || cellsY[j] < 0 || cellsX[j] > 7 || cellsY[j] > 7 || toremove[j])
         return;
     if(board[cellsY[j]][cellsX[j]] == EnemyKing)
     {
         toremove[j] = true;
+        Check = true;
         return;
     }
     if(cells[j] == ' ')
     {
-        circle.setPosition(128*(cellsX[j])+64, 128*(cellsY[j])+64);
-        inp.moves.push_back(circle);
+        temp.circle.setPosition(128*(cellsX[j])+64, 128*(cellsY[j])+64);
+        temp.x = cellsX[j];
+        temp.y = cellsY[j];
+        inp.moves.push_back(temp);
     }
     else if(((IsBlack && isupper(cells[j])) || (!IsBlack && islower(cells[j]))))
     {
-        circle.setPosition(128*(cellsX[j])+64, 128*(cellsY[j])+64);
-        inp.moves.push_back(circle);
+        temp.circle.setPosition(128*(cellsX[j])+64, 128*(cellsY[j])+64);
+        temp.x = cellsX[j];
+        temp.y = cellsY[j];
+        inp.moves.push_back(temp);
         toremove[j] = true;
         return;
     }
@@ -63,7 +68,7 @@ void HelpMoveRBQ(figure &inp, char board[8][8], char cells[], int cellsX[], int 
     }
 }
 
-void ShowMoves(figure &inp, char board[8][8], bool NeedToChange = false)
+void ShowMoves(figure &inp, char board[8][8], bool NeedToChange, bool Check)
 {
     if(!NeedToChange && inp.moves.size() > 0)
         return;
@@ -71,6 +76,7 @@ void ShowMoves(figure &inp, char board[8][8], bool NeedToChange = false)
     sf::CircleShape circle(40.f);
     circle.setFillColor(sf::Color(0, 0, 0, 75));
     circle.setOrigin(40.f, 40.f);
+    move temp(-1, -1, circle);
     bool IsBlack = ((inp.type == toupper(inp.type)) ? false : true);
     char type = toupper(inp.type);
     char EnemyKing = (IsBlack ? 'K' : 'k');
@@ -89,12 +95,15 @@ void ShowMoves(figure &inp, char board[8][8], bool NeedToChange = false)
                                     skipped = true;
                     if(!skipped && ((board[j][i] == ' ') || (IsBlack && isupper(board[j][i])) || (!IsBlack && islower(board[j][i]))))
                     {
-                        circle.setPosition(128*i+64, 128*j+64);
-                        inp.moves.push_back(circle);
+                        temp.circle.setPosition(128*i+64, 128*j+64);
+                        temp.x = i;
+                        temp.y = j;
+                        inp.moves.push_back(temp);
                         
                     }
                 }
     }
+    
     if(type == 'R')
     {
         bool toremove[4] = {false};
@@ -104,7 +113,7 @@ void ShowMoves(figure &inp, char board[8][8], bool NeedToChange = false)
             int cellsX[4] = {(inp.x - i), (inp.x + i), inp.x, inp.x};
             int cellsY[4] = {inp.y, inp.y, (inp.y - i), (inp.y + i)};
             for(int j = 0; j < 4; j++)
-                HelpMoveRBQ(inp, board, cells, cellsX, cellsY, j, toremove, IsBlack, circle, EnemyKing);
+                HelpMoveRBQ(inp, board, cells, cellsX, cellsY, j, toremove, IsBlack, temp, EnemyKing, Check);
         }
     }
     if(type == 'N')
@@ -116,16 +125,23 @@ void ShowMoves(figure &inp, char board[8][8], bool NeedToChange = false)
             if(x[i] >= 0 && x[i] < 8 && y[i] >= 0 && y[i] < 8)
             {
                 if(board[y[i]][x[i]] == EnemyKing)
+                {
+                    Check = true;
                     continue;
+                }
                 if(board[y[i]][x[i]] == ' ')
                 {
-                    circle.setPosition(128*x[i]+64, 128*y[i]+64);
-                    inp.moves.push_back(circle);
+                    temp.circle.setPosition(128*x[i]+64, 128*y[i]+64);
+                    temp.x = x[i];
+                    temp.y = y[i];
+                    inp.moves.push_back(temp);
                 }
                 else if((IsBlack && isupper(board[y[i]][x[i]])) || (!IsBlack && islower(board[y[i]][x[i]])))
                 {
-                    circle.setPosition(128*x[i]+64, 128*y[i]+64);
-                    inp.moves.push_back(circle);
+                    temp.circle.setPosition(128*x[i]+64, 128*y[i]+64);
+                    temp.x = x[i];
+                    temp.y = y[i];
+                    inp.moves.push_back(temp);
                 }
             }
         }
@@ -139,7 +155,7 @@ void ShowMoves(figure &inp, char board[8][8], bool NeedToChange = false)
             int cellsX[4] = {(inp.x - i), (inp.x + i), (inp.x + i), (inp.x - i)};
             int cellsY[4] = {inp.y - i, inp.y + i, (inp.y - i), (inp.y + i)};
             for(int j = 0; j < 4; j++)
-                HelpMoveRBQ(inp, board, cells, cellsX, cellsY, j, toremove, IsBlack, circle, EnemyKing);
+                HelpMoveRBQ(inp, board, cells, cellsX, cellsY, j, toremove, IsBlack, temp, EnemyKing, Check);
         }
     }
     if(type == 'Q')
@@ -151,7 +167,7 @@ void ShowMoves(figure &inp, char board[8][8], bool NeedToChange = false)
             int cellsX[8] = {(inp.x - i), (inp.x + i), inp.x, inp.x, (inp.x - i), (inp.x + i), (inp.x + i), (inp.x - i)};
             int cellsY[8] = {inp.y, inp.y, (inp.y - i), (inp.y + i), (inp.y - i), (inp.y + i), (inp.y - i), (inp.y + i)};
             for(int j = 0; j < 8; j++)
-                HelpMoveRBQ(inp, board, cells, cellsX, cellsY, j, toremove, IsBlack, circle, EnemyKing);
+                HelpMoveRBQ(inp, board, cells, cellsX, cellsY, j, toremove, IsBlack, temp, EnemyKing, Check);
         }
     }
     if(type == 'P')
@@ -162,20 +178,25 @@ void ShowMoves(figure &inp, char board[8][8], bool NeedToChange = false)
         {
             if(board[cellY][cellX[i]] == EnemyKing)
             {
+                Check = true;
                 continue;
             }
             if(board[cellY][cellX[i]] == ' ')
             {
                 if(i == 0)
                 {
-                    circle.setPosition(128*cellX[i]+64, 128*cellY+64);
-                    inp.moves.push_back(circle);
+                    temp.circle.setPosition(128*cellX[i]+64, 128*cellY+64);
+                    temp.x = cellX[i];
+                    temp.y = cellY;
+                    inp.moves.push_back(temp);
                 }
             }
             else if(i != 0 && (IsBlack && isupper(board[cellY][cellX[i]]) || (!IsBlack && islower(board[cellY][cellX[i]]))))
             {
-                circle.setPosition(128*cellX[i]+64, 128*cellY+64);
-                inp.moves.push_back(circle);
+                temp.circle.setPosition(128*cellX[i]+64, 128*cellY+64);
+                temp.x = cellX[i];
+                temp.y = cellY;
+                inp.moves.push_back(temp);
             }
         }
     }

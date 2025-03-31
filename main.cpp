@@ -8,7 +8,7 @@
 
 int main()
 {
-
+    std::cout << ('K' == ' ') << std::endl;
     setlocale(LC_ALL, "Russian");
     sf::RenderWindow window(sf::VideoMode(1024, 1024), "MyChess");
     std::stringstream TitleString;
@@ -16,20 +16,26 @@ int main()
 
     std::map<char, sf::Texture> dict;
     SetDict(dict);
-    char board[8][8] = {
-        {'r', 'n', 'b', 'q', ' ', 'b', 'n', 'r'},
+    char board[8][8] = 
+    {
+        {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
         {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
-        {' ', ' ', ' ', ' ', ' ', 'B', 'K', ' '},
-        {' ', ' ', 'B', ' ', 'k', ' ', ' ', 'R'},
         {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-        {' ', 'B', 'n', ' ', ' ', 'N', 'B', ' '},
+        {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+        {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+        {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
         {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
-        {'R', 'N', 'B', 'Q', ' ', ' ', 'N', ' '}
+        {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}
     };
-
     std::vector<figure> figures; 
     SetBoard(board, figures, dict);
 
+    bool CheckWhite = false;
+    bool CheckBlack = false;
+    short turn = 0;
+
+    for(int i = 0; i < figures.size(); i++)
+        ShowMoves(figures[i], board, true, (turn == 0 ? CheckWhite : CheckBlack));
     sf::RectangleShape BoardSquares[8][8];
     for(int i = 0; i < 8; i++)
     {
@@ -45,7 +51,9 @@ int main()
     sf::Event event;
     sf::Vector2i MousePos;
     short current = -1;
-    short turn = 0;
+
+
+
 #ifdef FPS_COUNT
     sf::Clock clock;
 #endif
@@ -69,10 +77,11 @@ int main()
                     {
                         for(int i = 0; i < figures[current].moves.size(); i++)
                         {
-                            if(figures[current].moves[i].getGlobalBounds().contains(MousePos.x, MousePos.y) && !doBreak && (turn == (figures[current].type == tolower(figures[current].type) ? 1 : 0)))
+                            sf::FloatRect col(figures[current].moves[i].x*128, figures[current].moves[i].y*128, 128.f, 128.f);
+                            if(col.contains(MousePos.x, MousePos.y) && !doBreak && (turn == (figures[current].type == tolower(figures[current].type) ? 1 : 0)))
                             {
                                 for(int j = 0; j < figures.size(); j++)
-                                    if(figures[current].moves[i].getPosition() == figures[j].sprite.getPosition())
+                                    if(figures[current].moves[i].x == figures[j].x && figures[current].moves[i].y == figures[j].y)
                                     {
                                         std::cout << "Срубил!";
                                         figures[current].SetSpritePost(figures[j].sprite.getPosition());
@@ -82,21 +91,24 @@ int main()
                                         figures[current].SetY(figures[j].y);
                                         board[figures[current].y][figures[current].x] = figures[current].type;
                                         figures[j].sprite.move(10000, 10000);
-                                        ShowMoves(figures[current], board, true);
+                                        ShowMoves(figures[current], board, true, (turn == 0 ? CheckWhite : CheckBlack));
                                         doBreak = true;
                                         break;
                                     }
                                 if(!doBreak)
                                 {
-                                    figures[current].SetSpritePost(figures[current].moves[i].getPosition());
+                                    figures[current].SetSpritePost(figures[current].moves[i].circle.getPosition());
                                     board[figures[current].y][figures[current].x] = ' ';
                                     BoardSquares[figures[current].x][figures[current].y].setFillColor((figures[current].x + figures[current].y) % 2 == 0 ? sf::Color(235, 236, 208) : sf::Color(115, 149, 82));
-                                    figures[current].SetX(figures[current].moves[i].getPosition().x / 128);
-                                    figures[current].SetY(figures[current].moves[i].getPosition().y / 128);
+                                    figures[current].SetX(figures[current].moves[i].x);
+                                    figures[current].SetY(figures[current].moves[i].y);
                                     board[figures[current].y][figures[current].x] = figures[current].type;
-                                    ShowMoves(figures[current], board, true);
+                                    ShowMoves(figures[current], board, true, (turn == 0 ? CheckWhite : CheckBlack));
                                     doBreak = true;
                                 }
+                                for(int i = 0; i < figures.size(); i++)
+                                    if(i != current)
+                                        ShowMoves(figures[i], board, true, (turn == 0 ? CheckWhite : CheckBlack));
                                 current = -1; 
                                 turn = (turn == 0 ? 1 : 0);
                                 break;
@@ -110,14 +122,12 @@ int main()
                     {
                         if(figures[i].sprite.getGlobalBounds().contains(MousePos.x, MousePos.y) && (turn == (figures[i].type == tolower(figures[i].type) ? 1 : 0)))
                         {
-                            std::cout << "figures[current] changed" << std::endl;
                             if(current != -1)
                             {
                                 BoardSquares[figures[current].x][figures[current].y].setFillColor((figures[current].x + figures[current].y) % 2 == 0 ? sf::Color(235, 236, 208) : sf::Color(115, 149, 82));
                             }
                             BoardSquares[figures[i].x][figures[i].y].setFillColor(sf::Color(BoardSquares[figures[i].x][figures[i].y].getFillColor().r-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().g-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().b-60));
                             current = i;
-                            ShowMoves(figures[current], board, true);
                             break;
                         }
                     }
@@ -134,7 +144,7 @@ int main()
                 window.draw(figures[i].sprite);
             if(current != -1)
                 for(int i = 0; i < figures[current].moves.size(); i++)
-                    window.draw(figures[current].moves[i]);
+                    window.draw(figures[current].moves[i].circle);
             window.display();
         }
 #ifdef FPS_COUNT
