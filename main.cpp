@@ -8,7 +8,6 @@
 
 int main()
 {
-    std::cout << ('K' == ' ') << std::endl;
     setlocale(LC_ALL, "Russian");
     sf::RenderWindow window(sf::VideoMode(1024, 1024), "MyChess");
     std::stringstream TitleString;
@@ -27,6 +26,18 @@ int main()
         {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
         {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}
     };
+
+    int moves[8][8] = 
+    {
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0}
+    };
     std::vector<figure> figures; 
     SetBoard(board, figures, dict);
 
@@ -35,7 +46,7 @@ int main()
     short turn = 0;
 
     for(int i = 0; i < figures.size(); i++)
-        ShowMoves(figures[i], board, true, (turn == 0 ? CheckWhite : CheckBlack));
+        ShowMoves(figures[i], moves, board, true, (turn == 0 ? CheckBlack : CheckWhite));
     sf::RectangleShape BoardSquares[8][8];
     for(int i = 0; i < 8; i++)
     {
@@ -53,7 +64,6 @@ int main()
     short current = -1;
 
 
-
 #ifdef FPS_COUNT
     sf::Clock clock;
 #endif
@@ -67,12 +77,36 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+            if(event.type == sf::Event::KeyPressed)
+            {
+                if(event.key.code == sf::Keyboard::Enter)
+                {
+                    for(int i = 0; i < 8; i++)
+                    {
+                        for(int j = 0; j < 8; j++)
+                        {
+                            std::cout << moves[i][j] << ' ';
+                        }
+                        std::cout << std::endl;
+                    }
+                }
+                if(event.key.code == sf::Keyboard::Space)
+                {
+                    for(int i = 0; i < 8; i++)
+                    {
+                        for(int j = 0; j < 8; j++)
+                        {
+                            std::cout << board[i][j] << ' ';
+                        }
+                        std::cout << std::endl;
+                    }
+                }
+            }
             if(event.type == sf::Event::MouseButtonPressed)
             {
                 bool doBreak = false;
                 if(current != -1)
                 {
-                    std::cout << figures[current].sprite.getPosition().x << figures[current].sprite.getPosition().y;
                     if(!doBreak)
                     {
                         for(int i = 0; i < figures[current].moves.size(); i++)
@@ -83,7 +117,7 @@ int main()
                                 for(int j = 0; j < figures.size(); j++)
                                     if(figures[current].moves[i].x == figures[j].x && figures[current].moves[i].y == figures[j].y)
                                     {
-                                        std::cout << "Срубил!";
+                                        std::cout << "Срубил!" << std::endl;
                                         figures[current].SetSpritePost(figures[j].sprite.getPosition());
                                         board[figures[current].y][figures[current].x] = ' ';
                                         BoardSquares[figures[current].x][figures[current].y].setFillColor((figures[current].x + figures[current].y) % 2 == 0 ? sf::Color(235, 236, 208) : sf::Color(115, 149, 82));
@@ -91,7 +125,8 @@ int main()
                                         figures[current].SetY(figures[j].y);
                                         board[figures[current].y][figures[current].x] = figures[current].type;
                                         figures[j].sprite.move(10000, 10000);
-                                        ShowMoves(figures[current], board, true, (turn == 0 ? CheckWhite : CheckBlack));
+                                        figures[j].SetX(-1);
+                                        figures[j].SetX(-1);
                                         doBreak = true;
                                         break;
                                     }
@@ -103,12 +138,13 @@ int main()
                                     figures[current].SetX(figures[current].moves[i].x);
                                     figures[current].SetY(figures[current].moves[i].y);
                                     board[figures[current].y][figures[current].x] = figures[current].type;
-                                    ShowMoves(figures[current], board, true, (turn == 0 ? CheckWhite : CheckBlack));
                                     doBreak = true;
                                 }
+                                for(short i = 0; i < 8; i++)
+                                    for(short j = 0; j < 8; j++)
+                                        moves[i][j] = 0;
                                 for(int i = 0; i < figures.size(); i++)
-                                    if(i != current)
-                                        ShowMoves(figures[i], board, true, (turn == 0 ? CheckWhite : CheckBlack));
+                                    ShowMoves(figures[i], moves, board, true, (turn == 0 ? CheckWhite : CheckBlack));
                                 current = -1; 
                                 turn = (turn == 0 ? 1 : 0);
                                 break;
@@ -128,6 +164,7 @@ int main()
                             }
                             BoardSquares[figures[i].x][figures[i].y].setFillColor(sf::Color(BoardSquares[figures[i].x][figures[i].y].getFillColor().r-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().g-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().b-60));
                             current = i;
+                            ShowMoves(figures[i], moves, board, true, (turn == 0 ? CheckWhite : CheckBlack));
                             break;
                         }
                     }
