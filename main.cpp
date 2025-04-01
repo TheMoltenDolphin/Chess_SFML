@@ -110,7 +110,7 @@ int main()
                         for(int i = 0; i < figures[current].moves.size(); i++)
                         {
                             sf::FloatRect col(figures[current].moves[i].x*128, figures[current].moves[i].y*128, 128.f, 128.f);
-                            if(col.contains(MousePos.x, MousePos.y) && !doBreak && (turn == (figures[current].type == tolower(figures[current].type) ? 1 : 0)))
+                            if(col.contains(MousePos.x, MousePos.y) && !doBreak && (turn == (figures[current].IsBlack ? 1 : 0)))
                             {
                                 for(int j = 0; j < figures.size(); j++)
                                     if(figures[current].moves[i].x == figures[j].x && figures[current].moves[i].y == figures[j].y)
@@ -154,7 +154,7 @@ int main()
                 {
                     for(int i = 0; i < figures.size(); i++)
                     {
-                        if(figures[i].sprite.getGlobalBounds().contains(MousePos.x, MousePos.y) && (turn == (figures[i].type == tolower(figures[i].type) ? 1 : 0)))
+                        if(figures[i].sprite.getGlobalBounds().contains(MousePos.x, MousePos.y) && (turn == (figures[i].IsBlack ? 1 : 0)))
                         {
                             if(current != -1)
                             {

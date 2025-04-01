@@ -29,6 +29,7 @@ void SetBoard(char board[8][8], std::vector<figure>& figures, std::map<char, sf:
                 sprite.setPosition(128*j + 64, 128*i + 64);
                 fig.sprite = sprite;
                 fig.type = board[i][j];
+                fig.IsBlack = (board[i][j] == tolower(board[i][j]) ? true : false);
                 figures.push_back(fig);
             }
         }
@@ -74,7 +75,7 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
     circle.setFillColor(sf::Color(0, 0, 0, 75));
     circle.setOrigin(40.f, 40.f);
     move temp(-1, -1, circle);
-    bool IsBlack = ((inp.type == toupper(inp.type)) ? false : true);
+    bool IsBlack = inp.IsBlack;
     char type = toupper(inp.type);
     char EnemyKing = (IsBlack ? 'K' : 'k');
 

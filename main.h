@@ -35,6 +35,7 @@ struct figure
     short x = -1;
     short y = -1;
     char type = ' ';
+    bool IsBlack;
     sf::Sprite sprite;
     std::vector<move> moves;
 
