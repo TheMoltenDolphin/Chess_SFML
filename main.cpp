@@ -38,7 +38,7 @@ int main()
         {0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0}
     };
-    std::vector<figure> figures; 
+    std::vector<figure> figures;
     SetBoard(board, figures, dict);
 
     bool CheckWhite = false;
@@ -62,8 +62,6 @@ int main()
     sf::Event event;
     sf::Vector2i MousePos;
     short current = -1;
-
-
 #ifdef FPS_COUNT
     sf::Clock clock;
 #endif

@@ -191,6 +191,13 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
                     temp.x = cellX[i];
                     temp.y = cellY;
                     inp.moves.push_back(temp);
+                    if((inp.y == 6 && !IsBlack) || (inp.y == 1 && IsBlack))
+                    {
+                        temp.circle.setPosition(128*cellX[i]+64, 128*(cellY + (IsBlack ? 1 : -1))+64);
+                        temp.x = cellX[i];
+                        temp.y = (cellY + (IsBlack ? 1 : -1));
+                        inp.moves.push_back(temp);
+                    }
                 }
             }
             else if(i != 0 && (IsBlack && isupper(board[cellY][cellX[i]]) || (!IsBlack && islower(board[cellY][cellX[i]]))))
