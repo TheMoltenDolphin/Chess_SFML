@@ -34,6 +34,8 @@ void SetBoard(char board[8][8], std::vector<figure>& figures, std::map<char, sf:
             }
         }
     }
+    std::swap(figures[4], figures[figures.size()-1]);
+    std::swap(figures[28], figures[figures.size()-2]);
 }
 
 bool IsOnLine(int x1, int y1, int x0, int y0, int xCheck, int yCheck)
@@ -82,12 +84,21 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
     circle.setOrigin(40.f, 40.f);
     move temp(-1, -1, circle);
     bool IsBlack = inp.IsBlack;
-    bool UnderCheck = GlobalCheck[1-Check];
+    bool UnderCheck = GlobalCheck[1 - Check];
     char type = toupper(inp.type);
     char EnemyKing = (IsBlack ? 'K' : 'k');
 
     if(type == 'K')
     {
+        if(UnderCheck)
+        {
+            if((moves[inp.y][inp.x] == 0) || (moves[inp.y][inp.x] == (IsBlack ? 1 : 2)))
+            {
+                std::cout << "шаха больше нет" << std::endl;
+                GlobalCheck[1 - Check] = false;
+            }
+        }
+        bool HasMoves = false;
         for(int i = inp.x - 1; i <= inp.x + 1; i++)
             for(int j = inp.y - 1; j <= inp.y + 1; j++)
                 if(i >= 0 && i < 8 && j >= 0 && j < 8)
@@ -95,29 +106,23 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
                     bool skipped = false;
                     for(int k = i-1; k <= i + 1; k++)
                         for(int l = j-1; l <= j + 1; l++)
-                            if(k >= 0 && k < 8 && l >= 0 && l < 8)
-                                if(board[l][k] == EnemyKing)
-                                    skipped = true;
+                            if(k >= 0 && k < 8 && l >= 0 && l < 8 && board[l][k] == EnemyKing)
+                                skipped = true;
                     if((moves[j][i] != (IsBlack ? 2 : 1) && moves[j][i] != 3) && !skipped && ((board[j][i] == ' ') || (IsBlack && isupper(board[j][i])) || (!IsBlack && islower(board[j][i]))))
                     {
+                        HasMoves = true;
                         temp.circle.setPosition(128*i+64, 128*j+64);
                         temp.x = i;
                         temp.y = j;
                         inp.moves.push_back(temp);                        
                     }
                 }
-    }
-
-    if(inp.AttackerPos.size() > 0)
-        for(int i = 0; i < inp.AttackerPos.size(); i++)
+        if(!HasMoves && UnderCheck)
         {
-            sf::Vector2i AttackerDir = {inp.AttackerPos[i].x - inp.x, inp.AttackerPos[i].y - inp.y};
-            
+            std::cout << "CheckMate to " << (Check == 1 ? "Black" : "White") << std::endl;
         }
+    }
                 
-            
-    if(!UnderCheck) 
-    {
     if(type == 'N')
     {
         int x[8] = {inp.x-2, inp.x-1, inp.x+1, inp.x+2, inp.x+2, inp.x+1, inp.x-1, inp.x-2};
@@ -211,7 +216,7 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
                     temp.x = cellX[i];
                     temp.y = cellY;
                     inp.moves.push_back(temp);
-                    if((inp.y == 6 && !IsBlack) || (inp.y == 1 && IsBlack))
+                    if(((inp.y == 6 && !IsBlack) || (inp.y == 1 && IsBlack)) && board[(cellY + (IsBlack ? 1 : -1))][cellX[i]] == ' ')
                     {
                         temp.circle.setPosition(128*cellX[i]+64, 128*(cellY + (IsBlack ? 1 : -1))+64);
                         temp.x = cellX[i];
@@ -229,5 +234,9 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
             }
         }
     }
-    }      
+}
+
+bool IsMoveLegit(figure &inp, int x, int y)
+{
+    return false;
 }

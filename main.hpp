@@ -57,4 +57,5 @@ struct figure
     }
 };
 
+std::vector<figure> figures;
 

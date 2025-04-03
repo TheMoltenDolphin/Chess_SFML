@@ -39,13 +39,12 @@ int main()
         {0, 0, 0, 0, 0, 0, 0, 0}
     };
 
-    std::vector<figure> figures;
     SetBoard(board, figures, dict);
 
     short turn = 0;
 
     for(int i = 0; i < figures.size(); i++)
-        ShowMoves(figures[i], moves, board, true, (turn == 0 ? 0 : 1));
+        ShowMoves(figures[i], moves, board, true, turn);
     sf::RectangleShape BoardSquares[8][8];
     for(int i = 0; i < 8; i++)
     {
@@ -141,7 +140,7 @@ int main()
                                     for(short j = 0; j < 8; j++)
                                         moves[i][j] = 0;
                                 for(int i = 0; i < figures.size(); i++)
-                                    ShowMoves(figures[i], moves, board, true, (turn == 0 ? 0 : 1));
+                                    ShowMoves(figures[i], moves, board, true, turn);
                                 current = -1; 
                                 turn = (turn == 0 ? 1 : 0);
                                 break;
@@ -161,7 +160,7 @@ int main()
                             }
                             BoardSquares[figures[i].x][figures[i].y].setFillColor(sf::Color(BoardSquares[figures[i].x][figures[i].y].getFillColor().r-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().g-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().b-60));
                             current = i;
-                            ShowMoves(figures[i], moves, board, false, (turn == 0 ? 0 : 1));
+                            ShowMoves(figures[i], moves, board, false, turn);
                             break;
                         }
                     }
