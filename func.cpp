@@ -1,4 +1,4 @@
-#include "main.h"
+#include "main.hpp"
 
 void SetDict(std::map<char, sf::Texture>& dict)
 {
@@ -36,15 +36,21 @@ void SetBoard(char board[8][8], std::vector<figure>& figures, std::map<char, sf:
     }
 }
 
-void HelpMoveRBQ(figure &inp, char board[8][8], int moves[8][8], char cells[], int cellsX[], int cellsY[], int j, bool toremove[], bool IsBlack, move temp, char EnemyKing, bool Check)
+bool IsOnLine(int x1, int y1, int x0, int y0, int xCheck, int yCheck)
+{
+    return(((xCheck-x0)*1000/(x1-x0)) == ((yCheck-y0)*1000/(y1-y0)));
+}
+
+void HelpMoveRBQ(figure &inp, char board[8][8], int moves[8][8], char cells[], int cellsX[], int cellsY[], int j, bool toremove[], bool IsBlack, move temp, char EnemyKing, int Check)
 {
     if(cellsX[j] < 0 || cellsY[j] < 0 || cellsX[j] > 7 || cellsY[j] > 7)
         return;
-    moves[cellsY[j]][cellsX[j]] = (EnemyKing == 'K' ? 1 : 2);
+    if(moves[cellsY[j]][cellsX[j]] != (EnemyKing == 'K' ? 1 : 2))
+        moves[cellsY[j]][cellsX[j]] = (moves[cellsY[j]][cellsX[j]] == 0 ? (EnemyKing == 'K' ? 1 : 2) : 3);
     if(board[cellsY[j]][cellsX[j]] == EnemyKing)
     {
         toremove[j] = true;
-        Check = true;
+        GlobalCheck[Check] = true;
         return;
     }
     if(cells[j] == ' ' || ((IsBlack && isupper(cells[j])) || (!IsBlack && islower(cells[j]))))
@@ -66,16 +72,17 @@ void HelpMoveRBQ(figure &inp, char board[8][8], int moves[8][8], char cells[], i
     }
 }
 
-void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange, bool &Check)
+void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange, int Check)
 {
-    if(!NeedToChange && inp.moves.size() > 0)
-        return;
+    if(NeedToChange)
+        inp.AttackerPos.clear();
     inp.moves.clear();
     sf::CircleShape circle(40.f);
     circle.setFillColor(sf::Color(0, 0, 0, 75));
     circle.setOrigin(40.f, 40.f);
     move temp(-1, -1, circle);
     bool IsBlack = inp.IsBlack;
+    bool UnderCheck = GlobalCheck[1-Check];
     char type = toupper(inp.type);
     char EnemyKing = (IsBlack ? 'K' : 'k');
 
@@ -91,7 +98,7 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
                             if(k >= 0 && k < 8 && l >= 0 && l < 8)
                                 if(board[l][k] == EnemyKing)
                                     skipped = true;
-                    if((moves[j][i] != (IsBlack ? 2 : 1)) && !skipped && ((board[j][i] == ' ') || (IsBlack && isupper(board[j][i])) || (!IsBlack && islower(board[j][i]))))
+                    if((moves[j][i] != (IsBlack ? 2 : 1) && moves[j][i] != 3) && !skipped && ((board[j][i] == ' ') || (IsBlack && isupper(board[j][i])) || (!IsBlack && islower(board[j][i]))))
                     {
                         temp.circle.setPosition(128*i+64, 128*j+64);
                         temp.x = i;
@@ -100,6 +107,17 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
                     }
                 }
     }
+
+    if(inp.AttackerPos.size() > 0)
+        for(int i = 0; i < inp.AttackerPos.size(); i++)
+        {
+            sf::Vector2i AttackerDir = {inp.AttackerPos[i].x - inp.x, inp.AttackerPos[i].y - inp.y};
+            
+        }
+                
+            
+    if(!UnderCheck) 
+    {
     if(type == 'N')
     {
         int x[8] = {inp.x-2, inp.x-1, inp.x+1, inp.x+2, inp.x+2, inp.x+1, inp.x-1, inp.x-2};
@@ -108,10 +126,11 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
         {
             if(x[i] < 0 || x[i] > 7 || y[i] < 0 || y[i] > 7)
                 continue;
-            moves[y[i]][x[i]] = (EnemyKing == 'K' ? 1 : 2);
+            if(moves[y[i]][x[i]] != (EnemyKing == 'K' ? 1 : 2))
+                moves[y[i]][x[i]] = (moves[y[i]][x[i]] == 0 ? (EnemyKing == 'K' ? 1 : 2) : 3);
             if(board[y[i]][x[i]] == EnemyKing)
             {
-                Check = true;
+                GlobalCheck[Check] = true;
                 continue;
             }
             else if(board[y[i]][x[i]] == ' ')
@@ -177,11 +196,11 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
         {
             if(cellX[i] < 0 || cellY < 0 || cellX[i] > 7)
                 continue;
-            if(i != 0)
-                moves[cellY][cellX[i]] = (EnemyKing == 'K' ? 1 : 2);
+            if(i != 0 && moves[cellY][cellX[i]] != (EnemyKing == 'K' ? 1 : 2))
+                moves[cellY][cellX[i]] = (moves[cellY][cellX[i]] == 0 ? (EnemyKing == 'K' ? 1 : 2) : 3);
             if(board[cellY][cellX[i]] == EnemyKing)
             {
-                Check = true;
+                GlobalCheck[Check] = true;
                 continue;
             }
             if(board[cellY][cellX[i]] == ' ')
@@ -210,4 +229,5 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
             }
         }
     }
+    }      
 }
