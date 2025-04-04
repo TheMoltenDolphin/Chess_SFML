@@ -86,6 +86,10 @@ int main()
                         std::cout << std::endl;
                     }
                 }
+                if(event.key.code == sf::Keyboard::Q)
+                {
+                    std::cout << GlobalCheck[0] << " " << GlobalCheck[1] << std::endl;
+                }
                 if(event.key.code == sf::Keyboard::Space)
                 {
                     for(int i = 0; i < 8; i++)
@@ -128,6 +132,7 @@ int main()
                                     }
                                 if(!doBreak)
                                 {
+                                    std::cout << "DFdfd";
                                     figures[current].SetSpritePost(figures[current].moves[i].circle.getPosition());
                                     board[figures[current].y][figures[current].x] = ' ';
                                     BoardSquares[figures[current].x][figures[current].y].setFillColor((figures[current].x + figures[current].y) % 2 == 0 ? sf::Color(235, 236, 208) : sf::Color(115, 149, 82));
@@ -160,7 +165,7 @@ int main()
                             }
                             BoardSquares[figures[i].x][figures[i].y].setFillColor(sf::Color(BoardSquares[figures[i].x][figures[i].y].getFillColor().r-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().g-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().b-60));
                             current = i;
-                            ShowMoves(figures[i], moves, board, false, turn);
+                            ShowMoves(figures[i], moves, board, false, turn, true);
                             break;
                         }
                     }
