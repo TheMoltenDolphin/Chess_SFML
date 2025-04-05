@@ -111,7 +111,7 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
         if(UnderCheck)
         {
             if((moves[inp.y][inp.x] == 0) || (moves[inp.y][inp.x] == (IsBlack ? 1 : 2)))
-            {
+            {   
                 std::cout << "шаха больше нет" << std::endl;
                 GlobalCheck[1 - Check] = false;
             }
@@ -140,7 +140,65 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
             std::cout << "CheckMate to " << (Check == 1 ? "Black" : "White") << std::endl;
         }
     }
-                
+    if(type == 'P')
+    {
+        int cellY = (IsBlack ? (inp.y+1) : (inp.y-1));
+        int cellX[3] = {inp.x, inp.x-1, inp.x+1};
+        for(int i = 0; i < 3; i++)
+        {
+            if(cellX[i] < 0 || cellY < 0 || cellX[i] > 7)
+                continue;
+            if(IsSimulation)
+            {
+                if(board[cellY][cellX[i]] == EnemyKing)
+                {
+                    GlobalCheck[Check] = true;
+                    return;
+                }
+                continue;
+            }
+            bool Go1Square = true;
+
+            if(NeedToCheck && i == 0 && !IsSimulation && !IsMoveLegit(inp, moves, board, Check, cellX[i], cellY))
+                Go1Square = false;
+            if(i != 0 && moves[cellY][cellX[i]] != (EnemyKing == 'K' ? 1 : 2))
+                moves[cellY][cellX[i]] = (moves[cellY][cellX[i]] == 0 ? (EnemyKing == 'K' ? 1 : 2) : 3);
+            if(board[cellY][cellX[i]] == EnemyKing)
+            {
+                GlobalCheck[Check] = true;
+                continue;
+            }
+            if(board[cellY][cellX[i]] == ' ')
+            {
+                if(i == 0)
+                {
+                    if(Go1Square)
+                    {
+                        temp.circle.setPosition(128*cellX[i]+64, 128*cellY+64);
+                        temp.x = cellX[i];
+                        temp.y = cellY;
+                        inp.moves.push_back(temp);
+                    }
+                    if(((inp.y == 6 && !IsBlack) || (inp.y == 1 && IsBlack)) && board[(cellY + (IsBlack ? 1 : -1))][cellX[i]] == ' ')
+                    {
+                        if(NeedToCheck && i == 0 && !IsSimulation && !IsMoveLegit(inp, moves, board, Check, cellX[i], (cellY + (IsBlack ? 1 : -1))))
+                            continue;
+                        temp.circle.setPosition(128*cellX[i]+64, 128*(cellY + (IsBlack ? 1 : -1))+64);
+                        temp.x = cellX[i];
+                        temp.y = (cellY + (IsBlack ? 1 : -1));
+                        inp.moves.push_back(temp);
+                    }
+                }
+            }
+            else if(i != 0 && (IsBlack && isupper(board[cellY][cellX[i]]) || (!IsBlack && islower(board[cellY][cellX[i]]))))
+            {
+                temp.circle.setPosition(128*cellX[i]+64, 128*cellY+64);
+                temp.x = cellX[i];
+                temp.y = cellY;
+                inp.moves.push_back(temp);
+            }
+        }
+    }            
     if(type == 'N')
     {
         int x[8] = {inp.x-2, inp.x-1, inp.x+1, inp.x+2, inp.x+2, inp.x+1, inp.x-1, inp.x-2};
@@ -160,7 +218,7 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
                 continue;
             }
             if(NeedToCheck && !IsSimulation && !IsMoveLegit(inp, moves, board, Check, x[i], y[i]))
-                return;
+                continue;
             if(moves[y[i]][x[i]] != (EnemyKing == 'K' ? 1 : 2))
                 moves[y[i]][x[i]] = (moves[y[i]][x[i]] == 0 ? (EnemyKing == 'K' ? 1 : 2) : 3);
             if(board[y[i]][x[i]] == EnemyKing)
@@ -225,58 +283,7 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
                     HelpMoveRBQ(inp, board, moves, cells, cellsX, cellsY, j, toremove, IsBlack, temp, EnemyKing, Check, NeedToCheck, IsSimulation);
             }
     }
-    if(type == 'P')
-    {
-        int cellY = (IsBlack ? (inp.y+1) : (inp.y-1));
-        int cellX[3] = {inp.x, inp.x-1, inp.x+1};
-        for(int i = 0; i < 3; i++)
-        {
-            if(cellX[i] < 0 || cellY < 0 || cellX[i] > 7)
-                continue;
-            if(IsSimulation)
-            {
-                if(board[cellY][cellX[i]] == EnemyKing)
-                {
-                    GlobalCheck[Check] = true;
-                    return;
-                }
-                continue;
-            }
-            if(NeedToCheck && i == 0 && !IsSimulation && !IsMoveLegit(inp, moves, board, Check, cellX[i], cellY))
-                return;
-            if(i != 0 && moves[cellY][cellX[i]] != (EnemyKing == 'K' ? 1 : 2))
-                moves[cellY][cellX[i]] = (moves[cellY][cellX[i]] == 0 ? (EnemyKing == 'K' ? 1 : 2) : 3);
-            if(board[cellY][cellX[i]] == EnemyKing)
-            {
-                GlobalCheck[Check] = true;
-                continue;
-            }
-            if(board[cellY][cellX[i]] == ' ')
-            {
-                if(i == 0)
-                {
-                    temp.circle.setPosition(128*cellX[i]+64, 128*cellY+64);
-                    temp.x = cellX[i];
-                    temp.y = cellY;
-                    inp.moves.push_back(temp);
-                    if(((inp.y == 6 && !IsBlack) || (inp.y == 1 && IsBlack)) && board[(cellY + (IsBlack ? 1 : -1))][cellX[i]] == ' ')
-                    {
-                        temp.circle.setPosition(128*cellX[i]+64, 128*(cellY + (IsBlack ? 1 : -1))+64);
-                        temp.x = cellX[i];
-                        temp.y = (cellY + (IsBlack ? 1 : -1));
-                        inp.moves.push_back(temp);
-                    }
-                }
-            }
-            else if(i != 0 && (IsBlack && isupper(board[cellY][cellX[i]]) || (!IsBlack && islower(board[cellY][cellX[i]]))))
-            {
-                temp.circle.setPosition(128*cellX[i]+64, 128*cellY+64);
-                temp.x = cellX[i];
-                temp.y = cellY;
-                inp.moves.push_back(temp);
-            }
-        }
-    }
+    
 }
 
 bool IsMoveLegit(figure &inp, int moves[8][8], char board[8][8], int Check, int NewX, int NewY)
@@ -284,24 +291,32 @@ bool IsMoveLegit(figure &inp, int moves[8][8], char board[8][8], int Check, int 
     std::cout << NewX << NewY;
     sf::Vector2i OldPos = {inp.x, inp.y};
     char OldType = board[NewY][NewX];
+    bool OldCheck = GlobalCheck[1-Check];
     board[inp.y][inp.x] = ' ';
     inp.SetX(NewX);
     inp.SetY(NewY);
     board[NewY][NewX] = inp.type;
     int Start = (inp.IsBlack ? 16 : 0);
+    GlobalCheck[0] = false;
+    GlobalCheck[1] = false;
     for(int i = Start; i < Start + 16; i ++)
     {
-        //std::cout << i << " " << OldPos.x << OldPos.y << std::endl;
-        ShowMoves(figures[i], moves, board, true, (1-Check), true, true);
+        if(i != 4)
+            ShowMoves(figures[i], moves, board, true, (1-Check), true, true);
     }
     if(Start == 16)
         ShowMoves(figures[31], moves, board, true, (1-Check), true, true);
+    else
+    {
+        ShowMoves(figures[4], moves, board, true, (1-Check), true, true);
+        ShowMoves(figures[30], moves, board, true, (1-Check), true, true);
+    }
     board[OldPos.y][OldPos.x] = inp.type;
     board[NewY][NewX] = OldType;
     inp.SetX(OldPos.x);
     inp.SetY(OldPos.y);
-    bool StillCheck = GlobalCheck[1 - Check];
-    std::cout << "Move legitimacy check completed." << GlobalCheck[1 - Check] << std::endl;
-    GlobalCheck[1 - Check] = false;
+    bool StillCheck = GlobalCheck[1-Check];
+    std::cout << "Move legitimacy check completed." << StillCheck << std::endl;
+    GlobalCheck[1-Check] = false;
     return (StillCheck == false);
 }
