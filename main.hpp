@@ -10,6 +10,7 @@
 
 #define HIGHLITED_COLOR sf::Color(255, 0, 0)
 
+sf::Vector2i AttackerPos = {-1, -1};
 bool GlobalCheck[2] = {false};
 
 struct move
@@ -39,7 +40,6 @@ struct figure
     bool IsBlack;
     sf::Sprite sprite;
     std::vector<move> moves;
-    std::vector<sf::Vector2i> AttackerPos;
 
     void SetX(short NewX)
     {

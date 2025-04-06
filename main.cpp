@@ -2,7 +2,7 @@
 #include <math.h>
 #include <map>
 #include <sstream>
-//#define FPS_COUNT
+#define FPS_COUNT
 
 
 
@@ -90,6 +90,10 @@ int main()
                 {
                     std::cout << GlobalCheck[0] << " " << GlobalCheck[1] << std::endl;
                 }
+                if(event.key.code == sf::Keyboard::W)
+                {
+                    std::cout << "AttackerPos: " << AttackerPos.x << ' ' << AttackerPos.y << std::endl;
+                }
                 if(event.key.code == sf::Keyboard::Space)
                 {
                     for(int i = 0; i < 8; i++)
@@ -118,6 +122,7 @@ int main()
                                     if(figures[current].moves[i].x == figures[j].x && figures[current].moves[i].y == figures[j].y)
                                     {
                                         std::cout << "Срубил!" << std::endl;
+                                        AttackerPos = {-1, -1};
                                         figures[current].SetSpritePost(figures[j].sprite.getPosition());
                                         board[figures[current].y][figures[current].x] = ' ';
                                         BoardSquares[figures[current].x][figures[current].y].setFillColor((figures[current].x + figures[current].y) % 2 == 0 ? sf::Color(235, 236, 208) : sf::Color(115, 149, 82));
@@ -132,7 +137,7 @@ int main()
                                     }
                                 if(!doBreak)
                                 {
-                                    std::cout << "DFdfd";
+                                    AttackerPos = {-1, -1};
                                     figures[current].SetSpritePost(figures[current].moves[i].circle.getPosition());
                                     board[figures[current].y][figures[current].x] = ' ';
                                     BoardSquares[figures[current].x][figures[current].y].setFillColor((figures[current].x + figures[current].y) % 2 == 0 ? sf::Color(235, 236, 208) : sf::Color(115, 149, 82));
