@@ -34,8 +34,10 @@ void SetBoard(char board[8][8], std::vector<figure>& figures, std::map<char, sf:
             }
         }
     }
-    std::swap(figures[4], figures[figures.size()-1]);
-    std::swap(figures[28], figures[figures.size()-2]);
+    figures.push_back(figures[4]);
+    figures.push_back(figures[28]);
+    figures.erase(figures.begin() + 4);
+    figures.erase(figures.begin() + 27);
 }
 
 bool IsMoveLegit(figure &inp, int moves[8][8], char board[8][8], int Check, int NewX, int NewY);
@@ -56,12 +58,12 @@ void HelpMoveRBQ(figure &inp, char board[8][8], int moves[8][8], char cells[], i
             return;
         }
     }
-    if(NeedToCheck && !IsSimulation && !((!IsBlack && isupper(cells[j])) || (IsBlack && islower(cells[j]))) && !IsMoveLegit(inp, moves, board, Check, cellsX[j], cellsY[j]))
+    if(NeedToCheck && !IsSimulation && cells[j] != ' ' && ((IsBlack && !isupper(cells[j])) || (!IsBlack && isupper(cells[j]))))
     {
         toremove[j] = true;
         return;
     }
-    if(moves[cellsY[j]][cellsX[j]] != (EnemyKing == 'K' ? 1 : 2))
+    if(!IsSimulation && moves[cellsY[j]][cellsX[j]] != (EnemyKing == 'K' ? 1 : 2))
         moves[cellsY[j]][cellsX[j]] = (moves[cellsY[j]][cellsX[j]] == 0 ? (EnemyKing == 'K' ? 1 : 2) : 3);
     if(board[cellsY[j]][cellsX[j]] == EnemyKing)
     {
@@ -73,10 +75,13 @@ void HelpMoveRBQ(figure &inp, char board[8][8], int moves[8][8], char cells[], i
     }
     if(cells[j] == ' ' || ((IsBlack && isupper(cells[j])) || (!IsBlack && islower(cells[j]))))
     {
-        temp.circle.setPosition(128*(cellsX[j])+64, 128*(cellsY[j])+64);
-        temp.x = cellsX[j];
-        temp.y = cellsY[j];
-        inp.moves.push_back(temp);
+        if(NeedToCheck && !IsSimulation && IsMoveLegit(inp, moves, board, Check, cellsX[j], cellsY[j]))
+        {
+            temp.circle.setPosition(128*(cellsX[j])+64, 128*(cellsY[j])+64);
+            temp.x = cellsX[j];
+            temp.y = cellsY[j];
+            inp.moves.push_back(temp);
+        }
         if((IsBlack && isupper(cells[j])) || (!IsBlack && islower(cells[j])))
         {
             toremove[j] = true;
@@ -167,7 +172,7 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
                 continue;
             if(IsSimulation)
             {
-                if(board[cellY][cellX[i]] == EnemyKing)
+                if(i != 0 && board[cellY][cellX[i]] == EnemyKing)
                 {
                     GlobalCheck[Check] = true;
                     return;
@@ -180,9 +185,10 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
                 Go1Square = false;
             if(i != 0 && moves[cellY][cellX[i]] != (EnemyKing == 'K' ? 1 : 2))
                 moves[cellY][cellX[i]] = (moves[cellY][cellX[i]] == 0 ? (EnemyKing == 'K' ? 1 : 2) : 3);
-            if(board[cellY][cellX[i]] == EnemyKing)
+            if(i != 0 && board[cellY][cellX[i]] == EnemyKing)
             {
-                AttackerPos = sf::Vector2i(cellX[i], cellY);
+                AttackerPos.x = inp.x;
+                AttackerPos.y = inp.y;
                 GlobalCheck[Check] = true;
                 continue;
             }
@@ -229,8 +235,6 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
             {
                 if(board[y[i]][x[i]] == EnemyKing)
                 {
-                    AttackerPos = sf::Vector2i(x[i], y[i]);
-                    std::cout << "ШАХ" << std::endl;
                     GlobalCheck[Check] = true;
                     return;
                 }
@@ -242,6 +246,8 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], bool NeedToChange
                 moves[y[i]][x[i]] = (moves[y[i]][x[i]] == 0 ? (EnemyKing == 'K' ? 1 : 2) : 3);
             if(board[y[i]][x[i]] == EnemyKing)
             {
+                AttackerPos.x = inp.x; 
+                AttackerPos.y = inp.y;
                 GlobalCheck[Check] = true;
                 continue;
             }
@@ -317,23 +323,16 @@ bool IsMoveLegit(figure &inp, int moves[8][8], char board[8][8], int Check, int 
     inp.SetX(NewX);
     inp.SetY(NewY);
     board[NewY][NewX] = inp.type;
-    int Start = (inp.IsBlack ? 16 : 0);
-    GlobalCheck[0] = false;
-    GlobalCheck[1] = false;
-    for(int i = Start; i < Start + 16; i ++)
+    int Start = (inp.IsBlack ? 15 : 0);
+    GlobalCheck[1-Check] = false;
+    for(int i = Start; i < Start + 15; i ++)
     {
-        if(i != 4)
-        {
-            ShowMoves(figures[i], moves, board, true, (1-Check), true, true);
-        }
+        ShowMoves(figures[i], moves, board, true, (1-Check), true, true);
     }
-    if(Start == 0)
+    if(inp.IsBlack)
         ShowMoves(figures[30], moves, board, true, (1-Check), true, true);
     else
-    {
-        ShowMoves(figures[4], moves, board, true, (1-Check), true, true);
         ShowMoves(figures[31], moves, board, true, (1-Check), true, true);
-    }
     board[OldPos.y][OldPos.x] = inp.type;
     board[NewY][NewX] = OldType;
     inp.SetX(OldPos.x);
