@@ -77,6 +77,7 @@ int main()
             {
                 if(event.key.code == sf::Keyboard::Enter)
                 {
+                    std::cout << std::endl;
                     for(int i = 0; i < 8; i++)
                     {
                         for(int j = 0; j < 8; j++)
@@ -88,14 +89,15 @@ int main()
                 }
                 if(event.key.code == sf::Keyboard::Q)
                 {
-                    std::cout << GlobalCheck[0] << " " << GlobalCheck[1] << std::endl;
+                    std::cout << std::endl << GlobalCheck[0] << " " << GlobalCheck[1] << std::endl;
                 }
                 if(event.key.code == sf::Keyboard::W)
                 {
-                    std::cout << "AttackerPos: " << AttackerPos.x << ' ' << AttackerPos.y << std::endl;
+                    std::cout << std::endl << "AttackerPos: " << AttackerPos.x << ' ' << AttackerPos.y << std::endl;
                 }
                 if(event.key.code == sf::Keyboard::Space)
-                {
+                { 
+                    std::cout << std::endl; 
                     for(int i = 0; i < 8; i++)
                     {
                         for(int j = 0; j < 8; j++)
