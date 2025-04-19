@@ -10,9 +10,9 @@ int main()
 {
     setlocale(LC_ALL, "Russian");
     sf::RenderWindow window(sf::VideoMode(1024, 1024), "MyChess");
-    std::stringstream TitleString;
-    window.setFramerateLimit(500);
 
+    std::stringstream TitleString;
+    window.setVerticalSyncEnabled(true);
     std::map<char, sf::Texture> dict;
     SetDict(dict);
     char board[8][8] = 
@@ -120,7 +120,6 @@ int main()
                                         figures[current].SetX(figures[j].x);
                                         figures[current].SetY(figures[j].y);
                                         board[figures[current].y][figures[current].x] = figures[current].type;
-                                        figures[j].sprite = sf::Sprite();
                                         figures[j].sprite.setPosition(10000, 10000);
                                         figures[j].SetX(-1);
                                         figures[j].SetY(-1);
@@ -137,6 +136,40 @@ int main()
                                     figures[current].SetY(figures[current].moves[i].y);
                                     board[figures[current].y][figures[current].x] = figures[current].type;
                                     doBreak = true;
+                                }
+                                if((figures[current].type == 'P' && figures[current].y == 5) || (figures[current].type == 'p' && figures[current].y == 2))
+                                {
+                                    sf::RenderWindow Selector(sf::VideoMode(512, 128), "Select a figure!");
+    
+                                    sf::Sprite ToSelect[4];
+                                    char figuresNames[4] = {'R', 'K', 'N', 'Q'};
+                                    if(figures[current].IsBlack)
+                                        for(int i = 0; i < 4; i++)
+                                            figuresNames[i] = tolower(figuresNames[i]);
+                                    for(int i = 0; i < 4; i++)
+                                    {   
+                                        ToSelect[i].setTexture(dict[figuresNames[i]]);
+                                        ToSelect[i].setOrigin(64.f, 64.f);
+                                        ToSelect[i].setPosition((i)*128 + 64, 64);
+                                    }
+                                    std::cout << "window created!" << std::endl;
+                                    while(Selector.isOpen())
+                                    {
+                                        while(Selector.pollEvent(event))
+                                        {
+                                            if(event.type == sf::Event::KeyPressed)
+                                            {
+                                                Selector.close();
+                                                break;
+                                            }
+                                        }
+                                        Selector.clear();
+                                        for(int i = 0; i < 4; i++)
+                                            Selector.draw(ToSelect[i]);
+                                        Selector.display();
+                                    }
+                                
+                                    //SelectFigure(figures[current], board, dict);
                                 }
                                 for(short i = 0; i < 8; i++)
                                     for(short j = 0; j < 8; j++)
@@ -176,7 +209,8 @@ int main()
                 for(int j = 0; j < 8; j++)
                     window.draw(BoardSquares[i][j]);
             for(int i = 0; i < figures.size(); i++)
-                window.draw(figures[i].sprite);
+                if(figures[i].x != -1)
+                    window.draw(figures[i].sprite);
             if(current != -1)
                 for(int i = 0; i < figures[current].moves.size(); i++)
                     window.draw(figures[current].moves[i].circle);
