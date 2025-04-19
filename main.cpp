@@ -2,7 +2,7 @@
 #include <math.h>
 #include <map>
 #include <sstream>
-#define FPS_COUNT
+//#define FPS_COUNT
 
 
 
@@ -44,7 +44,7 @@ int main()
     short turn = 0;
 
     for(int i = 0; i < figures.size(); i++)
-        ShowMoves(figures[i], moves, board, true, turn);
+        ShowMoves(figures[i], moves, board, turn);
     sf::RectangleShape BoardSquares[8][8];
     for(int i = 0; i < 8; i++)
     {
@@ -77,7 +77,6 @@ int main()
             {
                 if(event.key.code == sf::Keyboard::Enter)
                 {
-                    std::cout << std::endl;
                     for(int i = 0; i < 8; i++)
                     {
                         for(int j = 0; j < 8; j++)
@@ -86,18 +85,8 @@ int main()
                         }
                         std::cout << std::endl;
                     }
-                }
-                if(event.key.code == sf::Keyboard::Q)
-                {
-                    std::cout << std::endl << GlobalCheck[0] << " " << GlobalCheck[1] << std::endl;
-                }
-                if(event.key.code == sf::Keyboard::W)
-                {
-                    std::cout << std::endl << "AttackerPos: " << AttackerPos.x << ' ' << AttackerPos.y << std::endl;
-                }
-                if(event.key.code == sf::Keyboard::Space)
-                { 
-                    std::cout << std::endl; 
+                    std::cout << GlobalCheck[0] << " " << GlobalCheck[1] << std::endl;
+                    std::cout << "AttackerPos: " << AttackerPos.x << ' ' << AttackerPos.y << std::endl;
                     for(int i = 0; i < 8; i++)
                     {
                         for(int j = 0; j < 8; j++)
@@ -131,9 +120,10 @@ int main()
                                         figures[current].SetX(figures[j].x);
                                         figures[current].SetY(figures[j].y);
                                         board[figures[current].y][figures[current].x] = figures[current].type;
-                                        figures[j].sprite.move(10000, 10000);
+                                        figures[j].sprite = sf::Sprite();
+                                        figures[j].sprite.setPosition(10000, 10000);
                                         figures[j].SetX(-1);
-                                        figures[j].SetX(-1);
+                                        figures[j].SetY(-1);
                                         doBreak = true;
                                         break;
                                     }
@@ -152,7 +142,7 @@ int main()
                                     for(short j = 0; j < 8; j++)
                                         moves[i][j] = 0;
                                 for(int i = 0; i < figures.size(); i++)
-                                    ShowMoves(figures[i], moves, board, true, turn);
+                                    ShowMoves(figures[i], moves, board, turn);
                                 current = -1; 
                                 turn = (turn == 0 ? 1 : 0);
                                 break;
@@ -172,7 +162,7 @@ int main()
                             }
                             BoardSquares[figures[i].x][figures[i].y].setFillColor(sf::Color(BoardSquares[figures[i].x][figures[i].y].getFillColor().r-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().g-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().b-60));
                             current = i;
-                            ShowMoves(figures[i], moves, board, false, turn, true);
+                            ShowMoves(figures[i], moves, board, turn, true);
                             break;
                         }
                     }
