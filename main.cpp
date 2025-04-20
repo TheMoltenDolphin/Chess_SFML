@@ -9,10 +9,12 @@
 int main()
 {
     setlocale(LC_ALL, "Russian");
-    sf::RenderWindow window(sf::VideoMode(1024, 1024), "MyChess");
+    sf::RenderWindow MainWindow;
+    MainWindow.create(sf::VideoMode(1024, 1024), "MyChess");
 
+    sf::RenderWindow Selector;
     std::stringstream TitleString;
-    window.setVerticalSyncEnabled(true);
+    MainWindow.setVerticalSyncEnabled(true);
     std::map<char, sf::Texture> dict;
     SetDict(dict);
     char board[8][8] = 
@@ -59,20 +61,23 @@ int main()
 
     sf::Event event;
     sf::Vector2i MousePos;
+    sf::Sprite* figuresToSelect;
     short current = -1;
+    bool ShowChangeWindow = false;
 #ifdef FPS_COUNT
     sf::Clock clock;
 #endif
-    while(window.isOpen())
+
+    while(MainWindow.isOpen())
     {
 #ifdef FPS_COUNT
         float DeltaTime = clock.restart().asSeconds();
 #endif                
-        MousePos = sf::Mouse::getPosition(window);
-        while (window.pollEvent(event))
+        MousePos = sf::Mouse::getPosition(MainWindow);
+        while (MainWindow.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
-                window.close();
+                MainWindow.close();
             if(event.type == sf::Event::KeyPressed)
             {
                 if(event.key.code == sf::Keyboard::Enter)
@@ -99,6 +104,8 @@ int main()
             }
             if(event.type == sf::Event::MouseButtonPressed)
             {
+                if(Selector.isOpen())
+                    continue;
                 bool doBreak = false;
                 if(current != -1)
                 {
@@ -137,39 +144,49 @@ int main()
                                     board[figures[current].y][figures[current].x] = figures[current].type;
                                     doBreak = true;
                                 }
-                                if((figures[current].type == 'P' && figures[current].y == 5) || (figures[current].type == 'p' && figures[current].y == 2))
+                                if((figures[current].type == 'P' && figures[current].y == 0) || (figures[current].type == 'p' && figures[current].y == 7))
                                 {
                                     sf::RenderWindow Selector(sf::VideoMode(512, 128), "Select a figure!");
-    
-                                    sf::Sprite ToSelect[4];
-                                    char figuresNames[4] = {'R', 'K', 'N', 'Q'};
+                                    sf::Sprite ToSelect[4] {sf::Sprite()};
+                                    char figuresNames[4] = {'R', 'B', 'N', 'Q'};
                                     if(figures[current].IsBlack)
                                         for(int i = 0; i < 4; i++)
                                             figuresNames[i] = tolower(figuresNames[i]);
-                                    for(int i = 0; i < 4; i++)
-                                    {   
-                                        ToSelect[i].setTexture(dict[figuresNames[i]]);
-                                        ToSelect[i].setOrigin(64.f, 64.f);
-                                        ToSelect[i].setPosition((i)*128 + 64, 64);
-                                    }
-                                    std::cout << "window created!" << std::endl;
+                                    FiguresToSelect(ToSelect, figures[current], dict, figuresNames);
+                                    std::cout << "SelectWindow created!" << std::endl;
+                                    sf::Vector2i NewMousePos;
                                     while(Selector.isOpen())
                                     {
+                                        NewMousePos = sf::Mouse::getPosition(Selector);
+                                        std::cout << NewMousePos.x << " " << NewMousePos.y << std::endl;
                                         while(Selector.pollEvent(event))
                                         {
-                                            if(event.type == sf::Event::KeyPressed)
+                                            if(event.type == sf::Event::Closed)
                                             {
+                                                figures[current].sprite.setTexture(dict[figuresNames[3]]);
+                                                figures[current].type = figuresNames[3];
                                                 Selector.close();
-                                                break;
+                                            }
+                                            if(event.type == sf::Event::MouseButtonPressed)
+                                            {
+                                                std::cout << "!@32131";
+                                                for(int i = 0; i < 4; i++)
+                                                {
+                                                    if(ToSelect[i].getGlobalBounds().contains(NewMousePos.x, NewMousePos.y))
+                                                    {
+                                                        std::cout << "123213";
+                                                        figures[current].sprite.setTexture(dict[figuresNames[i]]);
+                                                        figures[current].type = figuresNames[i];
+                                                        Selector.close();
+                                                    }
+                                                }
                                             }
                                         }
-                                        Selector.clear();
+                                        Selector.clear(sf::Color::White);
                                         for(int i = 0; i < 4; i++)
                                             Selector.draw(ToSelect[i]);
                                         Selector.display();
                                     }
-                                
-                                    //SelectFigure(figures[current], board, dict);
                                 }
                                 for(short i = 0; i < 8; i++)
                                     for(short j = 0; j < 8; j++)
@@ -204,21 +221,22 @@ int main()
         }
 
         {
-            window.clear();
+            MainWindow.clear();
+            
             for(int i = 0; i < 8; i++)
                 for(int j = 0; j < 8; j++)
-                    window.draw(BoardSquares[i][j]);
+                    MainWindow.draw(BoardSquares[i][j]);
             for(int i = 0; i < figures.size(); i++)
                 if(figures[i].x != -1)
-                    window.draw(figures[i].sprite);
+                    MainWindow.draw(figures[i].sprite);
             if(current != -1)
                 for(int i = 0; i < figures[current].moves.size(); i++)
-                    window.draw(figures[current].moves[i].circle);
-            window.display();
+                    MainWindow.draw(figures[current].moves[i].circle);
+            MainWindow.display();
         }
 #ifdef FPS_COUNT
         TitleString << "FPS: " << 1.f / DeltaTime << " ";
-        window.setTitle(TitleString.str());
+        MainWindow.setTitle(TitleString.str());
 #endif
     }
 

@@ -338,31 +338,13 @@ bool IsMoveLegit(figure &inp, int moves[8][8], char board[8][8], int Check, int 
     return (StillCheck == false);
 }
 
-void SelectFigure(figure &inp, char board[8][8], std::map<char, sf::Texture> dict, sf::Event event)
-{
-    sf::RenderWindow Selector(sf::VideoMode(512, 128), "Select a figure!");
-    
-    sf::Sprite ToSelect[4];
-    for(int i = inp.IsBlack + 2; i < inp.IsBlack + 4 + 2; i++)
-    {
-        ToSelect[i].setTexture(dict[i]);
-        ToSelect[i].setOrigin(64.f, 64.f);
-        ToSelect[i].setPosition((i - inp.IsBlack - 2)*128 + 64, 64);
+void FiguresToSelect(sf::Sprite arr[4], figure &inp, std::map<char, sf::Texture>& dict, char figuresNames[4])
+{    
+    for(int i = 0; i < 4; i++)
+    {   
+        arr[i].setTexture(dict[figuresNames[i]]);
+        arr[i].setOrigin(64.f, 64.f);
+        arr[i].setPosition((i)*128 + 64, 64);
     }
-    std::cout << "window created!" << std::endl;
-    while(Selector.isOpen())
-    {
-        while(Selector.pollEvent(event))
-        {
-            if(event.type == sf::Event::KeyPressed)
-            {
-                return;
-            }
-        }
-        std::cout << "window opened" << std::endl;
-
-        for(int i = 0; i < 4; i++)
-            Selector.draw(ToSelect[i]);
-        Selector.display();
-    }
+    return;
 }
