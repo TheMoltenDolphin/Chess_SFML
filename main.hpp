@@ -9,6 +9,9 @@
 #include <cctype>
 
 #define HIGHLITED_COLOR sf::Color(255, 0, 0)
+#define CHESS_GREEN_COLOR sf::Color(235, 236, 208)
+#define CHESS_WHITE_COLOR sf::Color(115, 149, 82)
+
 
 sf::Vector2i AttackerPos = {-1, -1};
 bool GlobalCheck[2] = {false};
