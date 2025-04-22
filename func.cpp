@@ -89,7 +89,6 @@ void HelpMoveRBQ(figure &inp, char board[8][8], int moves[8][8], char cells[], i
         toremove[j] = true;
         AttackerPos.x = inp.x;
         AttackerPos.y = inp.y;
-        GlobalCheck[Check] = true;
         return;
     }
     if(cells[j] == ' ' || ((IsBlack && isupper(cells[j])) || (!IsBlack && islower(cells[j]))))
@@ -173,7 +172,6 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
             {
                 AttackerPos.x = inp.x;
                 AttackerPos.y = inp.y;
-                GlobalCheck[Check] = true;
                 continue;
             }
             if(board[cellY][cellX[i]] == ' ')
@@ -219,7 +217,6 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
             {
                 AttackerPos.x = inp.x; 
                 AttackerPos.y = inp.y;
-                GlobalCheck[Check] = true;
                 continue;
             }
             else if((board[CellY[i]][CellX[i]] == ' ') || (IsBlack && isupper(board[CellY[i]][CellX[i]])) || (!IsBlack && islower(board[CellY[i]][CellX[i]])))
@@ -275,7 +272,6 @@ bool IsMoveLegit(figure &inp, int moves[8][8], char board[8][8], int Check, int 
     if(AttackerPos.x == NewX && AttackerPos.y == NewY)
         return true;
     char OldType = board[NewY][NewX];
-    bool OldCheck = GlobalCheck[1-Check];
     board[inp.y][inp.x] = ' ';
     inp.SetX(NewX);
     inp.SetY(NewY);

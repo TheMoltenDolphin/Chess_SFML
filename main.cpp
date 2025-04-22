@@ -128,7 +128,7 @@ int main()
                                     MoveFigure(figures[current], i, board, BoardSquares);
                                     doBreak = true;
                                 }
-                                if((figures[current].type == 'P' && figures[current].y == 5) || (figures[current].type == 'p' && figures[current].y == 2))
+                                if((figures[current].type == 'P' && figures[current].y == 0) || (figures[current].type == 'p' && figures[current].y == 7))
                                 {
                                     Selector.create(sf::VideoMode(512, 128), "Select a figure!");
                                     sf::Sprite ToSelect[4] {sf::Sprite()};
