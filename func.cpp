@@ -21,15 +21,15 @@ void SetBoard(char board[8][8], std::vector<figure>& figures, std::map<char, sf:
             if(board[i][j] != ' ')
             {
                 figure fig;
-                fig.x = j;
-                fig.y = i;
+                fig.SetX(j);
+                fig.SetY(i);
                 sf::Sprite sprite;
                 sprite.setTexture(dict[board[i][j]]);
                 sprite.setOrigin(64.f, 64.f);  
                 sprite.setPosition(128*j + 64, 128*i + 64);
-                fig.sprite = sprite;
-                fig.type = board[i][j];
-                fig.IsBlack = (board[i][j] == tolower(board[i][j]) ? true : false);
+                fig.GetSprite() = sprite;
+                fig.SetType(board[i][j]);
+                fig.SetBlack(board[i][j] == tolower(board[i][j]) ? true : false);
                 figures.push_back(fig);
             }
         }
@@ -42,27 +42,31 @@ void SetBoard(char board[8][8], std::vector<figure>& figures, std::map<char, sf:
 
 void SetMovePos(figure &inp, move &temp, int i, int j)
 {
-    temp.circle.setPosition(128*i+64, 128*j+64);
-    temp.x = i;
-    temp.y = j;
-    inp.moves.push_back(temp);
+    temp.GetCircle().setPosition(128*i+64, 128*j+64);
+    temp.SetX(i);
+    temp.SetY(j);
+    inp.GetMoves().push_back(temp);
 }
 
 void MoveFigure(figure &inp, int i, char board[8][8], sf::RectangleShape BoardSquares[8][8])
 {
+    short y = inp.GetY();
+    short x = inp.GetX();
     AttackerPos = {-1, -1};
-    inp.SetSpritePost(inp.moves[i].circle.getPosition());
-    board[inp.y][inp.x] = ' ';
-    BoardSquares[inp.x][inp.y].setFillColor((inp.x + inp.y) % 2 == 0 ? CHESS_GREEN_COLOR : CHESS_WHITE_COLOR);
-    inp.SetX(inp.moves[i].x);
-    inp.SetY(inp.moves[i].y);
-    board[inp.y][inp.x] = inp.type;
+    inp.SetSpritePost(inp.GetMoves()[i].GetCircle().getPosition());
+    board[y][x] = ' ';
+    BoardSquares[x][y].setFillColor((x + y) % 2 == 0 ? CHESS_GREEN_COLOR : CHESS_WHITE_COLOR);
+    inp.SetX(inp.GetMoves()[i].GetX());
+    inp.SetY(inp.GetMoves()[i].GetY());
+    board[inp.GetY()][inp.GetX()] = inp.GetType();
 }
 
 bool IsMoveLegit(figure &inp, int moves[8][8], char board[8][8], int Check, int NewX, int NewY);
 
 void HelpMoveRBQ(figure &inp, char board[8][8], int moves[8][8], char cells[], int cellsX[], int cellsY[], int j, bool toremove[], bool IsBlack, move temp, char EnemyKing, int Check, bool NeedToCheck, bool IsSimulation)
 {
+    short y = inp.GetY();
+    short x = inp.GetX();
     if(cellsX[j] < 0 || cellsY[j] < 0 || cellsX[j] > 7 || cellsY[j] > 7)
         return;
     if(IsSimulation)
@@ -87,8 +91,8 @@ void HelpMoveRBQ(figure &inp, char board[8][8], int moves[8][8], char cells[], i
     if(board[cellsY[j]][cellsX[j]] == EnemyKing)
     {
         toremove[j] = true;
-        AttackerPos.x = inp.x;
-        AttackerPos.y = inp.y;
+        AttackerPos.x = x;
+        AttackerPos.y = y;
         return;
     }
     if(cells[j] == ' ' || ((IsBlack && isupper(cells[j])) || (!IsBlack && islower(cells[j]))))
@@ -111,26 +115,28 @@ void HelpMoveRBQ(figure &inp, char board[8][8], int moves[8][8], char cells[], i
 
 void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool NeedToCheck = false, bool IsSimulation = false)
 {
-    if(inp.x == -1)
+    short x = inp.GetX();
+    if(x == -1)
         return;
-    inp.moves.clear();
+    short y = inp.GetY();
+    inp.GetMoves().clear();
     sf::CircleShape circle(40.f);
     circle.setFillColor(sf::Color(0, 0, 0, 75));
     circle.setOrigin(40.f, 40.f);
     move temp(-1, -1, circle);
-    bool IsBlack = inp.IsBlack;
+    bool IsBlack = inp.GetBlack();
     bool UnderCheck = GlobalCheck[1 - Check];
-    char type = toupper(inp.type);
+    char type = toupper(inp.GetType());
     char EnemyKing = (IsBlack ? 'K' : 'k');
 
     if(type == 'K')
     {
         if(UnderCheck)
-            if((moves[inp.y][inp.x] == 0) || (moves[inp.y][inp.x] == (IsBlack ? 1 : 2)))
+            if((moves[y][x] == 0) || (moves[y][x] == (IsBlack ? 1 : 2)))
                 GlobalCheck[1 - Check] = false;
         bool HasMoves = false;
-        for(int i = inp.x - 1; i <= inp.x + 1; i++)
-            for(int j = inp.y - 1; j <= inp.y + 1; j++)
+        for(int i = x - 1; i <= x + 1; i++)
+            for(int j = y - 1; j <= y + 1; j++)
                 if(i >= 0 && i < 8 && j >= 0 && j < 8)
                 {
                     bool skipped = false;
@@ -147,8 +153,8 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
     }
     if(type == 'P')
     {
-        int cellY = (IsBlack ? (inp.y+1) : (inp.y-1));
-        int cellX[3] = {inp.x, inp.x-1, inp.x+1};
+        int cellY = (IsBlack ? (y+1) : (y-1));
+        int cellX[3] = {x, x-1, x+1};
         for(int i = 0; i < 3; i++)
         {
             if(cellX[i] < 0 || cellY < 0 || cellX[i] > 7 || cellY > 7)
@@ -170,8 +176,8 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
                 moves[cellY][cellX[i]] = (moves[cellY][cellX[i]] == 0 ? (EnemyKing == 'K' ? 1 : 2) : 3);
             if(i != 0 && board[cellY][cellX[i]] == EnemyKing)
             {
-                AttackerPos.x = inp.x;
-                AttackerPos.y = inp.y;
+                AttackerPos.x = x;
+                AttackerPos.y = y;
                 continue;
             }
             if(board[cellY][cellX[i]] == ' ')
@@ -180,7 +186,7 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
                 {
                     if(Go1Square)
                         SetMovePos(inp, temp, cellX[i], cellY);
-                    if(((inp.y == 6 && !IsBlack) || (inp.y == 1 && IsBlack)) && board[(cellY + (IsBlack ? 1 : -1))][cellX[i]] == ' ')
+                    if(((y == 6 && !IsBlack) || (y == 1 && IsBlack)) && board[(cellY + (IsBlack ? 1 : -1))][cellX[i]] == ' ')
                     {
                         if(NeedToCheck && i == 0 && !IsSimulation && !IsMoveLegit(inp, moves, board, Check, cellX[i], (cellY + (IsBlack ? 1 : -1))))
                             continue;
@@ -194,8 +200,8 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
     }            
     if(type == 'N')
     {
-        int CellX[8] = {inp.x-2, inp.x-1, inp.x+1, inp.x+2, inp.x+2, inp.x+1, inp.x-1, inp.x-2};
-        int CellY[8] = {inp.y-1, inp.y-2, inp.y-2, inp.y-1, inp.y+1, inp.y+2, inp.y+2, inp.y+1};
+        int CellX[8] = {x-2, x-1, x+1, x+2, x+2, x+1, x-1, x-2};
+        int CellY[8] = {y-1, y-2, y-2, y-1, y+1, y+2, y+2, y+1};
         for(int i = 0; i < 8; i++)
         {
             if(CellX[i] < 0 || CellX[i] > 7 || CellY[i] < 0 || CellY[i] > 7)
@@ -215,8 +221,8 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
                 moves[CellY[i]][CellX[i]] = (moves[CellY[i]][CellX[i]] == 0 ? (EnemyKing == 'K' ? 1 : 2) : 3);
             if(board[CellY[i]][CellX[i]] == EnemyKing)
             {
-                AttackerPos.x = inp.x; 
-                AttackerPos.y = inp.y;
+                AttackerPos.x = x; 
+                AttackerPos.y = y;
                 continue;
             }
             else if((board[CellY[i]][CellX[i]] == ' ') || (IsBlack && isupper(board[CellY[i]][CellX[i]])) || (!IsBlack && islower(board[CellY[i]][CellX[i]])))
@@ -228,9 +234,9 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
         bool toremove[4] = {false};
         for(int i = 1; i < 8 ; i++)
         {
-            char cells[4] = {board[inp.y][inp.x - i], board[inp.y][inp.x + i], board[inp.y - i][inp.x], board[inp.y + i][inp.x]};
-            int cellsX[4] = {(inp.x - i), (inp.x + i), inp.x, inp.x};
-            int cellsY[4] = {inp.y, inp.y, (inp.y - i), (inp.y + i)};
+            char cells[4] = {board[y][x - i], board[y][x + i], board[y - i][x], board[y + i][x]};
+            int cellsX[4] = {(x - i), (x + i), x, x};
+            int cellsY[4] = {y, y, (y - i), (y + i)};
             for(int j = 0; j < 4; j++)
                 if(!toremove[j])
                     HelpMoveRBQ(inp, board, moves, cells, cellsX, cellsY, j, toremove, IsBlack, temp, EnemyKing, Check, NeedToCheck, IsSimulation);
@@ -241,9 +247,9 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
         bool toremove[4] = {false};
         for(int i = 1; i < 8 ; i++)
         {
-            char cells[4] = {board[inp.y - i][inp.x - i], board[inp.y + i][inp.x + i], board[inp.y - i][inp.x + i], board[inp.y + i][inp.x - i]};
-            int cellsX[4] = {inp.x - i, inp.x + i, inp.x + i, inp.x - i};
-            int cellsY[4] = {inp.y - i, inp.y + i, inp.y - i, inp.y + i};
+            char cells[4] = {board[y - i][x - i], board[y + i][x + i], board[y - i][x + i], board[y + i][x - i]};
+            int cellsX[4] = {x - i, x + i, x + i, x - i};
+            int cellsY[4] = {y - i, y + i, y - i, y + i};
             for(int j = 0; j < 4; j++)
                 if(!toremove[j])
                     HelpMoveRBQ(inp, board, moves, cells, cellsX, cellsY, j, toremove, IsBlack, temp, EnemyKing, Check, NeedToCheck, IsSimulation);
@@ -254,9 +260,9 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
         bool toremove[8] = {false};
         for(int i = 1; i < 8 ; i++)
         {
-            char cells[8] = {board[inp.y][inp.x - i], board[inp.y][inp.x + i], board[inp.y - i][inp.x], board[inp.y + i][inp.x], board[inp.y - i][inp.x - i], board[inp.y + i][inp.x + i], board[inp.y - i][inp.x + i], board[inp.y + i][inp.x - i]};
-            int cellsX[8] = {inp.x - i, inp.x + i, inp.x, inp.x, inp.x - i, inp.x + i, inp.x + i, inp.x - i};
-            int cellsY[8] = {inp.y, inp.y, inp.y - i, inp.y + i, inp.y - i, inp.y + i, inp.y - i, inp.y + i};
+            char cells[8] = {board[y][x - i], board[y][x + i], board[y - i][x], board[y + i][x], board[y - i][x - i], board[y + i][x + i], board[y - i][x + i], board[y + i][x - i]};
+            int cellsX[8] = {x - i, x + i, x, x, x - i, x + i, x + i, x - i};
+            int cellsY[8] = {y, y, y - i, y + i, y - i, y + i, y - i, y + i};
             for(int j = 0; j < 8; j++)
                 if(!toremove[j])
                     HelpMoveRBQ(inp, board, moves, cells, cellsX, cellsY, j, toremove, IsBlack, temp, EnemyKing, Check, NeedToCheck, IsSimulation);
@@ -267,24 +273,26 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
 
 bool IsMoveLegit(figure &inp, int moves[8][8], char board[8][8], int Check, int NewX, int NewY)
 {
-    sf::Vector2i OldPos = {inp.x, inp.y};
-    std::cout << inp.type;
+    short x = inp.GetX();
+    short y = inp.GetY();
+    sf::Vector2i OldPos = {x, y};
+    std::cout << inp.GetType();
     if(AttackerPos.x == NewX && AttackerPos.y == NewY)
         return true;
     char OldType = board[NewY][NewX];
-    board[inp.y][inp.x] = ' ';
+    board[y][x] = ' ';
     inp.SetX(NewX);
     inp.SetY(NewY);
-    board[NewY][NewX] = inp.type;
-    int Start = (inp.IsBlack ? 15 : 0);
+    board[NewY][NewX] = inp.GetType();
+    int Start = (inp.GetBlack() ? 15 : 0);
     GlobalCheck[1-Check] = false;
     for(int i = Start; i < Start + 15; i ++)
         ShowMoves(figures[i], moves, board, (1-Check), true, true);
-    if(inp.IsBlack)
+    if(Start == 15)
         ShowMoves(figures[30], moves, board, (1-Check), true, true);
     else
         ShowMoves(figures[31], moves, board, (1-Check), true, true);
-    board[OldPos.y][OldPos.x] = inp.type;
+    board[OldPos.y][OldPos.x] = inp.GetType();
     board[NewY][NewX] = OldType;
     inp.SetX(OldPos.x);
     inp.SetY(OldPos.y);

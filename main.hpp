@@ -16,48 +16,124 @@
 sf::Vector2i AttackerPos = {-1, -1};
 bool GlobalCheck[2] = {false};
 
-struct move
+class move
 {
-    short x = -1;
-    short y = -1;
-    sf::CircleShape circle;
+    private:
 
-    move(short NewX, short NewY, sf::CircleShape NewCircle)
-    {
-        x = NewX;
-        y = NewY;
-        circle = NewCircle;
-    }
+        short x;
+        short y;
+        sf::CircleShape circle;
 
-    sf::Vector2i GetPos()
-    {
-        return sf::Vector2i((int)x, (int)y);
-    }
+    public:
+
+        move() : x(-1), y(-1), circle(sf::CircleShape()) {}
+
+        move(short NewX, short NewY, sf::CircleShape NewCircle)
+        {
+            x = NewX;
+            y = NewY;
+            circle = NewCircle;
+        }
+
+        sf::Vector2i GetPos()
+        {
+            return sf::Vector2i((int)x, (int)y);
+        }
+
+        short GetX()
+        {
+            return x;
+        }
+
+        short GetY()
+        {
+            return y;
+        }
+
+        void SetX(short i)
+        {
+            x = i;
+        }
+
+        void SetY(short i)
+        {
+            y = i;
+        }
+
+        sf::CircleShape& GetCircle()
+        {
+            return circle;
+        }
 };
 
-struct figure
+class figure
 {
-    short x = -1;
-    short y = -1;
-    char type = ' ';
-    bool IsBlack;
-    sf::Sprite sprite;
-    std::vector<move> moves;
+    private:
+        short x;
+        short y;
+        char type;
+        bool IsBlack;
+        sf::Sprite sprite;
+        std::vector<move> moves;
 
-    void SetX(short NewX)
-    {
-        x = NewX;
-    }
-    
-    void SetY(short NewY)
-    {
-        y = NewY;
-    }
+    public:
 
-    void SetSpritePost(sf::Vector2f NewPos)
-    {
-        sprite.setPosition(NewPos);
-    }
+        figure() : x(-1), y(-1), type(' '), IsBlack(false), sprite(sf::Sprite()), moves(std::vector<move>()) {}
+
+        short GetX()
+        {
+            return x;
+        }
+
+        short GetY()
+        {
+            return y;
+        }
+
+        char GetType()
+        {
+            return type;
+        }
+
+        void SetType(char i)
+        {
+            type = i;
+        }
+
+        void SetX(short NewX)
+        {
+            x = NewX;
+        }
+        
+        void SetY(short NewY)
+        {
+            y = NewY;
+        }
+
+        bool GetBlack()
+        {
+            return IsBlack;
+        }
+
+        void SetBlack(bool i)
+        {
+            IsBlack = i;
+        }
+
+        sf::Sprite& GetSprite()
+        {
+            return sprite;
+        }
+
+        std::vector<move>& GetMoves()
+        {
+            return moves;
+        }
+
+        void SetSpritePost(sf::Vector2f NewPos)
+        {
+            sprite.setPosition(NewPos);
+        }
 };
 
 std::vector<figure> figures;

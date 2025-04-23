@@ -107,17 +107,17 @@ int main()
                 if(current != -1)
                 {
                     if(!doBreak)
-                        for(short i = 0; i < figures[current].moves.size(); i++)
+                        for(short i = 0; i < figures[current].GetMoves().size(); i++)
                         {
-                            sf::FloatRect col(figures[current].moves[i].x*128, figures[current].moves[i].y*128, 128.f, 128.f);
-                            if(col.contains(MousePos.x, MousePos.y) && !doBreak && (turn == (figures[current].IsBlack ? 1 : 0)))
+                            sf::FloatRect col(figures[current].GetMoves()[i].GetX()*128, figures[current].GetMoves()[i].GetY()*128, 128.f, 128.f);
+                            if(col.contains(MousePos.x, MousePos.y) && !doBreak && (turn == (figures[current].GetBlack() ? 1 : 0)))
                             {
                                 for(short j = 0; j < figures.size(); j++)
-                                    if(figures[current].moves[i].x == figures[j].x && figures[current].moves[i].y == figures[j].y)
+                                    if(figures[current].GetMoves()[i].GetX() == figures[j].GetX() && figures[current].GetMoves()[i].GetY() == figures[j].GetY())
                                     {
                                         std::cout << "Срубил!" << std::endl;
                                         MoveFigure(figures[current], i, board, BoardSquares);
-                                        figures[j].sprite.setPosition(INT_MAX, INT_MAX);
+                                        figures[j].GetSprite().setPosition(INT_MAX, INT_MAX);
                                         figures[j].SetX(-1);
                                         figures[j].SetY(-1);
                                         doBreak = true;
@@ -128,12 +128,12 @@ int main()
                                     MoveFigure(figures[current], i, board, BoardSquares);
                                     doBreak = true;
                                 }
-                                if((figures[current].type == 'P' && figures[current].y == 0) || (figures[current].type == 'p' && figures[current].y == 7))
+                                if((figures[current].GetType() == 'P' && figures[current].GetY() == 0) || (figures[current].GetType() == 'p' && figures[current].GetY() == 7))
                                 {
                                     Selector.create(sf::VideoMode(512, 128), "Select a figure!");
                                     sf::Sprite ToSelect[4] {sf::Sprite()};
                                     char figuresNames[4] = {'R', 'B', 'N', 'Q'};
-                                    if(figures[current].IsBlack)
+                                    if(figures[current].GetBlack())
                                         for(short i = 0; i < 4; i++)
                                             figuresNames[i] = tolower(figuresNames[i]);
                                     FiguresToSelect(ToSelect, figures[current], dict, figuresNames);
@@ -146,16 +146,16 @@ int main()
                                         {
                                             if(event.type == sf::Event::Closed)
                                             {
-                                                figures[current].sprite.setTexture(dict[figuresNames[3]]);
-                                                figures[current].type = figuresNames[3];
+                                                figures[current].GetSprite().setTexture(dict[figuresNames[3]]);
+                                                figures[current].SetType(figuresNames[3]);
                                                 Selector.close();
                                             }
                                             if(event.type == sf::Event::MouseButtonPressed)
                                                 for(short i = 0; i < 4; i++)
                                                     if(ToSelect[i].getGlobalBounds().contains(NewMousePos.x, NewMousePos.y))
                                                     {
-                                                        figures[current].sprite.setTexture(dict[figuresNames[i]]);
-                                                        figures[current].type = figuresNames[i];
+                                                        figures[current].GetSprite().setTexture(dict[figuresNames[i]]);
+                                                        figures[current].SetType(figuresNames[i]);
                                                         Selector.close();
                                                     }
                                         }
@@ -179,13 +179,13 @@ int main()
                 if(!doBreak)
                     for(short i = 0; i < figures.size(); i++)
                     {
-                        if(figures[i].sprite.getGlobalBounds().contains(MousePos.x, MousePos.y) && (turn == (figures[i].IsBlack ? 1 : 0)))
+                        if(figures[i].GetSprite().getGlobalBounds().contains(MousePos.x, MousePos.y) && (turn == (figures[i].GetBlack() ? 1 : 0)))
                         {
                             if(current != -1)
                             {
-                                BoardSquares[figures[current].x][figures[current].y].setFillColor((figures[current].x + figures[current].y) % 2 == 0 ? sf::Color(235, 236, 208) : sf::Color(115, 149, 82));
+                                BoardSquares[figures[current].GetX()][figures[current].GetY()].setFillColor((figures[current].GetX() + figures[current].GetY()) % 2 == 0 ? sf::Color(235, 236, 208) : sf::Color(115, 149, 82));
                             }
-                            BoardSquares[figures[i].x][figures[i].y].setFillColor(sf::Color(BoardSquares[figures[i].x][figures[i].y].getFillColor().r-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().g-60, BoardSquares[figures[i].x][figures[i].y].getFillColor().b-60));
+                            BoardSquares[figures[i].GetX()][figures[i].GetY()].setFillColor(sf::Color(BoardSquares[figures[i].GetX()][figures[i].GetY()].getFillColor().r-60, BoardSquares[figures[i].GetX()][figures[i].GetY()].getFillColor().g-60, BoardSquares[figures[i].GetX()][figures[i].GetY()].getFillColor().b-60));
                             current = i;
                             ShowMoves(figures[i], moves, board, turn, true);
                             break;
@@ -200,11 +200,11 @@ int main()
                 for(short j = 0; j < 8; j++)
                     MainWindow.draw(BoardSquares[i][j]);
             for(short i = 0; i < figures.size(); i++)
-                if(figures[i].x != -1)
-                    MainWindow.draw(figures[i].sprite);
+                if(figures[i].GetX() != -1)
+                    MainWindow.draw(figures[i].GetSprite());
             if(current != -1)
-                for(short i = 0; i < figures[current].moves.size(); i++)
-                    MainWindow.draw(figures[current].moves[i].circle);
+                for(short i = 0; i < figures[current].GetMoves().size(); i++)
+                    MainWindow.draw(figures[current].GetMoves()[i].GetCircle());
             MainWindow.display();
         }
 #ifdef FPS_COUNT
