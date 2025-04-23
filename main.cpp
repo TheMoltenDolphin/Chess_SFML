@@ -62,9 +62,7 @@ int main()
 
     sf::Event event;
     sf::Vector2i MousePos;
-    sf::Sprite* figuresToSelect;
     short current = -1;
-    bool ShowChangeWindow = false;
 #ifdef FPS_COUNT
     sf::Clock clock;
 #endif
@@ -88,7 +86,7 @@ int main()
                             std::cout << moves[i][j] << ' ';
                         std::cout << std::endl;
                     }
-                    std::cout << GlobalCheck[0] << " " << GlobalCheck[1] << std::endl;
+                    std::cout << GlobalCheck << std::endl;
                     std::cout << "AttackerPos: " << AttackerPos.x << ' ' << AttackerPos.y << std::endl;
                     for(short i = 0; i < 8; i++)
                     {

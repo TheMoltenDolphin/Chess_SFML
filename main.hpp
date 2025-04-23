@@ -14,7 +14,7 @@
 
 
 sf::Vector2i AttackerPos = {-1, -1};
-bool GlobalCheck[2] = {false};
+bool GlobalCheck = false;
 
 class move
 {

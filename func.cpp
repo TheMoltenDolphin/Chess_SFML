@@ -75,7 +75,7 @@ void HelpMoveRBQ(figure &inp, char board[8][8], int moves[8][8], char cells[], i
         {
             if(board[cellsY[j]][cellsX[j]] == EnemyKing)
             {
-                GlobalCheck[Check] = true;
+                GlobalCheck = true;
             }
             toremove[j] = true;
             return;
@@ -125,15 +125,11 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
     circle.setOrigin(40.f, 40.f);
     move temp(-1, -1, circle);
     bool IsBlack = inp.GetBlack();
-    bool UnderCheck = GlobalCheck[1 - Check];
     char type = toupper(inp.GetType());
     char EnemyKing = (IsBlack ? 'K' : 'k');
 
     if(type == 'K')
     {
-        if(UnderCheck)
-            if((moves[y][x] == 0) || (moves[y][x] == (IsBlack ? 1 : 2)))
-                GlobalCheck[1 - Check] = false;
         bool HasMoves = false;
         for(int i = x - 1; i <= x + 1; i++)
             for(int j = y - 1; j <= y + 1; j++)
@@ -163,7 +159,7 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
             {
                 if(i != 0 && board[cellY][cellX[i]] == EnemyKing)
                 {
-                    GlobalCheck[Check] = true;
+                    GlobalCheck = true;
                     return;
                 }
                 continue;
@@ -210,7 +206,7 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
             {
                 if(board[CellY[i]][CellX[i]] == EnemyKing)
                 {
-                    GlobalCheck[Check] = true;
+                    GlobalCheck = true;
                     return;
                 }
                 continue;
@@ -285,7 +281,7 @@ bool IsMoveLegit(figure &inp, int moves[8][8], char board[8][8], int Check, int 
     inp.SetY(NewY);
     board[NewY][NewX] = inp.GetType();
     int Start = (inp.GetBlack() ? 15 : 0);
-    GlobalCheck[1-Check] = false;
+    GlobalCheck = false;
     for(int i = Start; i < Start + 15; i ++)
         ShowMoves(figures[i], moves, board, (1-Check), true, true);
     if(Start == 15)
@@ -296,9 +292,9 @@ bool IsMoveLegit(figure &inp, int moves[8][8], char board[8][8], int Check, int 
     board[NewY][NewX] = OldType;
     inp.SetX(OldPos.x);
     inp.SetY(OldPos.y);
-    bool StillCheck = GlobalCheck[1-Check];
+    bool StillCheck = GlobalCheck;
     std::cout << "Move legitimacy check completed." << StillCheck << std::endl;
-    GlobalCheck[1-Check] = false;
+    GlobalCheck = false;
     return (StillCheck == false);
 }
 
