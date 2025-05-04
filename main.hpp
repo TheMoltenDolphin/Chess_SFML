@@ -14,6 +14,7 @@
 
 
 sf::Vector2i AttackerPos = {-1, -1};
+bool KorRmoved[6] = {false};
 bool GlobalCheck = false;
 
 class move

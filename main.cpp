@@ -2,7 +2,6 @@
 #include <math.h>
 #include <map>
 #include <sstream>
-//#define FPS_COUNT
 
 
 
@@ -63,15 +62,9 @@ int main()
     sf::Event event;
     sf::Vector2i MousePos;
     short current = -1;
-#ifdef FPS_COUNT
-    sf::Clock clock;
-#endif
 
     while(MainWindow.isOpen())
-    {
-#ifdef FPS_COUNT
-        float DeltaTime = clock.restart().asSeconds();
-#endif                
+    {   
         MousePos = sf::Mouse::getPosition(MainWindow);
         while (MainWindow.pollEvent(event))
         {
@@ -207,10 +200,6 @@ int main()
                     MainWindow.draw(figures[current].GetMoves()[i].GetCircle());
             MainWindow.display();
         }
-#ifdef FPS_COUNT
-        TitleString << "FPS: " << 1.f / DeltaTime << " ";
-        MainWindow.setTitle(TitleString.str());
-#endif
     }
     return 0;
 }

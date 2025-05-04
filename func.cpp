@@ -50,6 +50,10 @@ void SetMovePos(figure &inp, move &temp, int i, int j)
 
 void MoveFigure(figure &inp, int i, char board[8][8], sf::RectangleShape BoardSquares[8][8])
 {
+    if(inp.GetType() == 'K' || inp.GetType() == 'k')
+        KorRmoved[inp.GetBlack()*3] = true;
+    if(inp.GetType() == 'R' || inp.GetType() == 'r')
+        KorRmoved[inp.GetBlack()*3 + 1 + inp.GetX()%2] = true;
     short y = inp.GetY();
     short x = inp.GetX();
     AttackerPos = {-1, -1};
@@ -112,6 +116,39 @@ void HelpMoveRBQ(figure &inp, char board[8][8], int moves[8][8], char cells[], i
     }
 }
 
+bool CheckMove(int compare, int EnemyMove)
+{
+    return ((compare != EnemyMove) && (compare != 3));
+}
+
+void CheckCastle(figure &inp, int moves[8][8], char board[8][8], move temp)
+{
+    short x = inp.GetX();
+    short y = inp.GetY();
+    short EnemyMove = (inp.GetBlack() ? 2 : 1);
+    if(inp.GetBlack())
+    {
+        if(!KorRmoved[3] && CheckMove(moves[y][1], EnemyMove) && CheckMove(moves[y][2], EnemyMove) && CheckMove(moves[y][3], EnemyMove) && (board[y][2] + board[y][1] + board[y][3] == (char)96))
+        {
+            SetMovePos(inp, temp, x-2, y);
+        }
+        if(!KorRmoved[4] && CheckMove(moves[y][5], EnemyMove) && CheckMove(moves[y][6], EnemyMove) && (board[y][5] + board[y][6] == (char)64))
+        {
+            SetMovePos(inp, temp, x+2, y);
+        }
+    }
+    else
+    {
+        if(!KorRmoved[1] && CheckMove(moves[y][1], EnemyMove) && CheckMove(moves[y][2], EnemyMove) && CheckMove(moves[y][3], EnemyMove) && (board[y][2] + board[y][1] + board[y][3] == (char)96))
+        {
+            SetMovePos(inp, temp, x-2, y);
+        }
+        if(!KorRmoved[2] && CheckMove(moves[y][5], EnemyMove) && CheckMove(moves[y][6], EnemyMove) && ((board[y][5] + board[y][6]) == (char)64))
+        {
+            SetMovePos(inp, temp, x+2, y);
+        }
+    }
+}   
 
 void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool NeedToCheck = false, bool IsSimulation = false)
 {
@@ -120,9 +157,9 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
         return;
     short y = inp.GetY();
     inp.GetMoves().clear();
-    sf::CircleShape circle(40.f);
+    sf::CircleShape circle(35.f);
     circle.setFillColor(sf::Color(0, 0, 0, 75));
-    circle.setOrigin(40.f, 40.f);
+    circle.setOrigin(35.f, 35.f);
     move temp(-1, -1, circle);
     bool IsBlack = inp.GetBlack();
     char type = toupper(inp.GetType());
@@ -130,6 +167,10 @@ void ShowMoves(figure &inp, int moves[8][8], char board[8][8], int Check, bool N
 
     if(type == 'K')
     {
+        if(!KorRmoved[inp.GetBlack()*3] && moves[y][x] != (IsBlack ? 2 : 1))
+        {
+            //CheckCastle(inp, moves, board, temp);
+        }
         bool HasMoves = false;
         for(int i = x - 1; i <= x + 1; i++)
             for(int j = y - 1; j <= y + 1; j++)
