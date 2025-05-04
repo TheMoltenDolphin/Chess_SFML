@@ -145,6 +145,7 @@ int main()
                                             if(event.type == sf::Event::Closed)
                                             {
                                                 figures[current].GetSprite().setTexture(dict[figuresNames[3]]);
+                                                board[figures[current].GetY()][figures[current].GetX()] = figuresNames[3];
                                                 figures[current].SetType(figuresNames[3]);
                                                 Selector.close();
                                             }
@@ -153,6 +154,7 @@ int main()
                                                     if(ToSelect[i].getGlobalBounds().contains(NewMousePos.x, NewMousePos.y))
                                                     {
                                                         figures[current].GetSprite().setTexture(dict[figuresNames[i]]);
+                                                        board[figures[current].GetY()][figures[current].GetX()] = figuresNames[i];
                                                         figures[current].SetType(figuresNames[i]);
                                                         Selector.close();
                                                     }
